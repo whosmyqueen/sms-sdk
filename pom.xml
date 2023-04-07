@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>cn.javaer.aliyun</groupId>
+    <groupId>io.github.whosmyqueen</groupId>
     <artifactId>sms-sdk-parent</artifactId>
     <packaging>pom</packaging>
     <version>1.2.1-SNAPSHOT</version>
@@ -10,7 +10,7 @@
         <module>aliyun-sms</module>
         <module>aliyun-spring-boot-starter-sms</module>
     </modules>
-    <name>aliyun-sms-parent</name>
+    <name>sms-sdk-parent</name>
     <description>Aliyun SMS project parent</description>
     <url>https://github.com/whosmyqueen/sms-sdk</url>
     <licenses>
@@ -66,12 +66,12 @@
             </dependency>
 
             <dependency>
-                <groupId>cn.javaer.aliyun</groupId>
+                <groupId>io.github.whosmyqueen</groupId>
                 <artifactId>sms-sdk</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>cn.javaer.aliyun</groupId>
+                <groupId>io.github.whosmyqueen</groupId>
                 <artifactId>spring-boot-starter-sms-sdk</artifactId>
                 <version>${project.version}</version>
             </dependency>
