@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Configuration;
  * @author cn-src
  */
 @Configuration
-@ConditionalOnClass(name = "com.aliyuncs.IAcsClient")
+@ConditionalOnClass(name = "com.aliyun.dysmsapi20170525.Client")
 @EnableConfigurationProperties(SmsProperties.class)
 public class SmsAutoConfiguration {
     private final SmsProperties smsProperties;
@@ -42,7 +42,7 @@ public class SmsAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    public SmsClient smsClient() {
+    public SmsClient smsClient() throws Exception {
         if (this.smsProperties.getTemplates() == null) {
             return new SmsClient(this.smsProperties.getAccessKeyId(), this.smsProperties.getAccessKeySecret());
         } else {

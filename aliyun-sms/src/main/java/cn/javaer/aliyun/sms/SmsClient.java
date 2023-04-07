@@ -13,14 +13,12 @@
 
 package cn.javaer.aliyun.sms;
 
-import com.aliyuncs.CommonRequest;
-import com.aliyuncs.CommonResponse;
-import com.aliyuncs.DefaultAcsClient;
-import com.aliyuncs.IAcsClient;
-import com.aliyuncs.exceptions.ClientException;
-import com.aliyuncs.http.MethodType;
-import com.aliyuncs.profile.DefaultProfile;
-import com.aliyuncs.profile.IClientProfile;
+import com.aliyun.dysmsapi20170525.Client;
+import com.aliyun.dysmsapi20170525.models.SendBatchSmsRequest;
+import com.aliyun.dysmsapi20170525.models.SendBatchSmsResponse;
+import com.aliyun.dysmsapi20170525.models.SendSmsRequest;
+import com.aliyun.dysmsapi20170525.models.SendSmsResponse;
+import com.aliyun.teaopenapi.models.Config;
 import com.google.gson.Gson;
 
 import java.util.Arrays;
@@ -42,48 +40,48 @@ import static cn.javaer.aliyun.sms.Utils.checkSmsTemplate;
  */
 public class SmsClient {
 
-    private final IAcsClient acsClient;
+    private final Client client;
     private final Map<String, SmsTemplate> smsTemplates;
     private final Gson gson = new Gson();
 
     /**
      * Instantiates a new SmsClient.
      *
-     * @param accessKeyId 阿里云短信 accessKeyId
+     * @param accessKeyId     阿里云短信 accessKeyId
      * @param accessKeySecret 阿里云短信 accessKeySecret
      */
-    public SmsClient(final String accessKeyId, final String accessKeySecret) {
+    public SmsClient(final String accessKeyId, final String accessKeySecret) throws Exception {
         this(accessKeyId, accessKeySecret, Collections.emptyMap());
     }
 
     /**
      * Instantiates a new SmsClient.
      *
-     * @param accessKeyId 阿里云短信 accessKeyId
+     * @param accessKeyId     阿里云短信 accessKeyId
      * @param accessKeySecret 阿里云短信 accessKeySecret
-     * @param smsTemplates 预置短信模板
+     * @param smsTemplates    预置短信模板
      */
     public SmsClient(final String accessKeyId,
                      final String accessKeySecret,
-                     final Map<String, SmsTemplate> smsTemplates) {
+                     final Map<String, SmsTemplate> smsTemplates) throws Exception {
         checkNotEmpty(accessKeyId, "'accessKeyId' must be not empty");
         checkNotEmpty(accessKeySecret, "'accessKeySecret' must be not empty");
-
-        final IClientProfile clientProfile = DefaultProfile.getProfile(
-                "default", accessKeyId, accessKeySecret);
-
-        this.acsClient = new DefaultAcsClient(clientProfile);
+        Config config = new Config()
+                .setAccessKeyId(accessKeyId)
+                .setAccessKeySecret(accessKeySecret);
+        config.endpoint = "dysmsapi.aliyuncs.com";
+        this.client = new Client(config);
         this.smsTemplates = smsTemplates;
     }
 
     /**
      * Instantiates a new SmsClient.
      *
-     * @param acsClient IAcsClient
+     * @param acsClient    IAcsClient
      * @param smsTemplates 预置短信模板
      */
-    public SmsClient(final IAcsClient acsClient, final Map<String, SmsTemplate> smsTemplates) {
-        this.acsClient = acsClient;
+    public SmsClient(final Client acsClient, final Map<String, SmsTemplate> smsTemplates) {
+        this.client = acsClient;
         this.smsTemplates = smsTemplates;
     }
 
@@ -91,7 +89,6 @@ public class SmsClient {
      * 发送短信验证码.
      *
      * @param phoneNumber 手机号码(中国)
-     *
      * @return 6 位数的随机码
      */
     public int sendVerificationCode(final String smsTemplateKey, final String phoneNumber) {
@@ -122,7 +119,7 @@ public class SmsClient {
      * 发送短信.
      *
      * @param smsTemplateKey 预置短信模板 key
-     * @param phoneNumbers 手机号码，优先于预置短信模板中配置的手机号码
+     * @param phoneNumbers   手机号码，优先于预置短信模板中配置的手机号码
      */
     public void send(final String smsTemplateKey, final String... phoneNumbers) {
         final SmsTemplate smsTemplate = this.smsTemplates.get(smsTemplateKey);
@@ -140,21 +137,15 @@ public class SmsClient {
     public void send(final SmsTemplate smsTemplate) {
         Objects.requireNonNull(smsTemplate);
         checkSmsTemplate(smsTemplate);
-
-        final CommonRequest request = new CommonRequest();
-        request.setSysMethod(MethodType.POST);
-        request.setSysDomain("dysmsapi.aliyuncs.com");
-        request.setSysVersion("2017-05-25");
-        request.setSysAction("SendSms");
-        request.putQueryParameter("PhoneNumbers", String.join(",", smsTemplate.getPhoneNumbers()));
-        request.putQueryParameter("SignName", smsTemplate.getSignName());
-        request.putQueryParameter("TemplateCode", smsTemplate.getTemplateCode());
-        request.putQueryParameter("TemplateParam", Utils.toJsonStr(smsTemplate.getTemplateParam()));
+        SendSmsRequest request = new SendSmsRequest();
+        request.setPhoneNumbers(String.join(",", smsTemplate.getPhoneNumbers()));
+        request.setSignName(smsTemplate.getSignName());
+        request.setTemplateCode(smsTemplate.getTemplateCode());
+        request.setTemplateParam(Utils.toJsonStr(smsTemplate.getTemplateParam()));
         try {
-            final CommonResponse response = this.acsClient.getCommonResponse(request);
+            SendSmsResponse response = this.client.sendSms(request);
             checkSmsResponse(response);
-        }
-        catch (final ClientException e) {
+        } catch (Exception e) {
             throw new SmsException(e);
         }
     }
@@ -174,21 +165,15 @@ public class SmsClient {
     public void send(final BatchSmsTemplate batchSmsTemplate) {
         Objects.requireNonNull(batchSmsTemplate);
         checkBatchSmsTemplate(batchSmsTemplate);
-
-        final CommonRequest request = new CommonRequest();
-        request.setSysMethod(MethodType.POST);
-        request.setSysDomain("dysmsapi.aliyuncs.com");
-        request.setSysVersion("2017-05-25");
-        request.setSysAction("SendBatchSms");
-        request.putQueryParameter("PhoneNumberJson", this.gson.toJson(batchSmsTemplate.getPhoneNumbers()));
-        request.putQueryParameter("SignNameJson", this.gson.toJson(batchSmsTemplate.getSignNames()));
-        request.putQueryParameter("TemplateCode", batchSmsTemplate.getTemplateCode());
-        request.putQueryParameter("TemplateParamJson", this.gson.toJson(batchSmsTemplate.getTemplateParams()));
+        SendBatchSmsRequest request = new SendBatchSmsRequest();
+        request.setPhoneNumberJson(this.gson.toJson(batchSmsTemplate.getPhoneNumbers()));
+        request.setSignNameJson(this.gson.toJson(batchSmsTemplate.getSignNames()));
+        request.setTemplateCode(batchSmsTemplate.getTemplateCode());
+        request.setTemplateParamJson(this.gson.toJson(batchSmsTemplate.getTemplateParams()));
         try {
-            final CommonResponse response = this.acsClient.getCommonResponse(request);
+            SendBatchSmsResponse response = this.client.sendBatchSms(request);
             checkSmsResponse(response);
-        }
-        catch (final ClientException e) {
+        } catch (Exception e) {
             throw new SmsException(e);
         }
     }

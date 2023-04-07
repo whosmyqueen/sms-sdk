@@ -1,6 +1,9 @@
 package cn.javaer.aliyun.sms;
 
-import com.aliyuncs.CommonResponse;
+import com.aliyun.dysmsapi20170525.models.SendBatchSmsResponse;
+import com.aliyun.dysmsapi20170525.models.SendBatchSmsResponseBody;
+import com.aliyun.dysmsapi20170525.models.SendSmsResponse;
+import com.aliyun.dysmsapi20170525.models.SendSmsResponseBody;
 import com.google.gson.Gson;
 
 import java.util.Collection;
@@ -33,7 +36,6 @@ class Utils {
      * Map 转 json 字符串的简单实现.
      *
      * @param map the map
-     *
      * @return the json string
      */
     static String toJsonStr(final Map<String, String> map) {
@@ -94,14 +96,30 @@ class Utils {
      *
      * @param response the SendSmsResponse
      */
-    static void checkSmsResponse(final CommonResponse response) {
+    static void checkSmsResponse(final SendSmsResponse response) {
         if (null == response) {
-            throw new SmsException("Response is null");
+            throw new SmsException("SendSmsResponse is null");
         }
         final Gson gson = new Gson();
-        final Map<String, String> json = gson.fromJson(response.getData(), Map.class);
-        if (!SUCCESS_CODE.equalsIgnoreCase(json.get("Code"))) {
-            throw new SmsException("Http status: " + response.getHttpStatus() + ", response: " + response.getData());
+        SendSmsResponseBody body = response.getBody();
+        if (!SUCCESS_CODE.equalsIgnoreCase(body.getCode())) {
+            throw new SmsException("Http status: " + response.getStatusCode() + ", response: " + gson.toJson(body));
+        }
+    }
+
+    /**
+     * 校验 SendSmsResponse 状态.
+     *
+     * @param response the SendSmsResponse
+     */
+    static void checkSmsResponse(final SendBatchSmsResponse response) {
+        if (null == response) {
+            throw new SmsException("SendBatchSmsResponse is null");
+        }
+        final Gson gson = new Gson();
+        SendBatchSmsResponseBody body = response.getBody();
+        if (!SUCCESS_CODE.equalsIgnoreCase(body.getCode())) {
+            throw new SmsException("Http status: " + response.getStatusCode() + ", response: " + gson.toJson(body));
         }
     }
 
@@ -119,7 +137,7 @@ class Utils {
     /**
      * 校验字符串不为空.
      *
-     * @param str the str
+     * @param str     the str
      * @param message the message
      */
     static void checkNotEmpty(final String str, final String message) {
@@ -131,7 +149,7 @@ class Utils {
     /**
      * 校验集合不为空.
      *
-     * @param coll the Collection
+     * @param coll    the Collection
      * @param message the message
      */
     static void checkNotEmpty(final Collection coll, final String message) {
