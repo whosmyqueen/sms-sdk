@@ -6,7 +6,7 @@
     <groupId>io.github.whosmyqueen</groupId>
     <artifactId>sms-sdk-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
     <modules>
         <module>aliyun-sms</module>
         <module>aliyun-spring-boot-starter-sms</module>

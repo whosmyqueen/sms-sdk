@@ -4,12 +4,11 @@
     <parent>
         <groupId>io.github.whosmyqueen</groupId>
         <artifactId>sms-sdk-parent</artifactId>
-        <version>1.2.1</version>
+        <version>1.2.2</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>spring-boot-starter-sms-sdk</artifactId>
-    <version>1.2.1</version>
     <name>spring-boot-starter-sms-sdk</name>
 
     <dependencies>

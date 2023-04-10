@@ -16,13 +16,12 @@
     <parent>
         <groupId>io.github.whosmyqueen</groupId>
         <artifactId>sms-sdk-parent</artifactId>
-        <version>1.2.1</version>
+        <version>1.2.2</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>sms-sdk</artifactId>
     <name>sms-sdk</name>
-    <version>1.2.1</version>
 
     <dependencies>
         <dependency>
